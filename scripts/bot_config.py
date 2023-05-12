@@ -60,7 +60,7 @@ bot_password = args.bot_password
 admin_name = args.admin_name
 admin_password = args.admin_password
 
-bot_email = bot_name + '@email.com'
+bot_email = f'{bot_name}@email.com'
 user_header = None
 
 
@@ -73,13 +73,11 @@ def get_authentication_token():
 
         authToken = response.json()['data']['authToken']
         userId = response.json()['data']['userId']
-        user_header = {
+        return {
             'X-Auth-Token': authToken,
             'X-User-Id': userId,
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
         }
-
-        return user_header
 
 
 def create_bot_user():
@@ -93,9 +91,9 @@ def create_bot_user():
     }
 
     create_user_response = requests.post(
-        host + '/api/v1/users.create',
+        f'{host}/api/v1/users.create',
         data=json.dumps(user_info),
-        headers=user_header
+        headers=user_header,
     )
 
     if create_user_response.json()['success'] is True:
@@ -107,9 +105,9 @@ def create_bot_user():
 def create_livechat_agent():
     agent_info = {'username': bot_name}
     create_agent_response = requests.post(
-        host + '/api/v1/livechat/users/agent',
+        f'{host}/api/v1/livechat/users/agent',
         data=json.dumps(agent_info),
-        headers=user_header
+        headers=user_header,
     )
 
     if create_agent_response.json()['success'] is True:
@@ -123,16 +121,16 @@ def create_livechat_agent():
 def configure_livechat():
     # Enable Livechat
     requests.post(
-        host + '/api/v1/settings/Livechat_enabled',
+        f'{host}/api/v1/settings/Livechat_enabled',
         data=json.dumps({'value': True}),
-        headers=user_header
+        headers=user_header,
     )
 
     # Disable show pre-registration form
     requests.post(
-        host + '/api/v1/settings/Livechat_registration_form',
+        f'{host}/api/v1/settings/Livechat_registration_form',
         data=json.dumps({'value': False}),
-        headers=user_header
+        headers=user_header,
     )
 
 
@@ -152,9 +150,9 @@ def create_department(bot_agent_id):
         }]
     }
     create_department_response = requests.post(
-        host + '/api/v1/livechat/department',
+        f'{host}/api/v1/livechat/department',
         data=json.dumps(department_info),
-        headers=user_header
+        headers=user_header,
     )
 
     if create_department_response.json()['success'] is True:
@@ -166,9 +164,7 @@ def create_department(bot_agent_id):
 if __name__ == '__main__':
     logger.info('===== Automatic env configuration =====')
 
-    user_header = get_authentication_token()
-
-    if user_header:
+    if user_header := get_authentication_token():
         logger.info('>> Create user')
         create_bot_user()
 
